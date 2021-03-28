@@ -1,4 +1,5 @@
 use actix_web::{get, App, HttpResponse, HttpServer};
+use std::env;
 
 #[get("/")]
 async fn index() -> Result<HttpResponse, actix_web::Error> {
@@ -9,9 +10,14 @@ async fn index() -> Result<HttpResponse, actix_web::Error> {
 }
 
 #[actix_rt::main]
-async fn main() -> Result<(), actix_web::Error>{
+async fn main() -> Result<(), actix_web::Error> {
+    let port = env::var("PORT")
+        .unwrap_or_else(|_| "8080".to_string())
+        .parse()
+        .expect("PORT must be a number");
+
     HttpServer::new(move || App::new().service(index))
-        .bind("0.0.0.0:8080")?
+        .bind(("0.0.0.0", port))?
         .run()
         .await?;
     Ok(())
